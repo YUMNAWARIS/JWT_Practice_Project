@@ -1,0 +1,54 @@
+<%- include('partials/header'); -%>
+
+  <form action="/login">
+    <h2>Login</h2>
+    <label for="email">Email</label>
+    <input type="text" name="email" />
+    <div class="email error"></div>
+    <label for="password">Password</label>
+    <input type="password" name="password" />
+    <div class="password error"></div>
+    <button type="submit">login</button>
+  </form>
+
+  <%- include('partials/footer'); -%>
+
+    <script>
+      const form = document.querySelector('form');
+      const emailError = document.querySelector('.email.error');
+      const passwordError = document.querySelector('.password.error');
+
+      form.addEventListener('submit', (e) => {
+
+        // reset errors
+        emailError.textContent = '';
+        passwordError.textContent = '';
+        e.preventDefault();
+
+        const email = form.email.value;
+        const password = form.password.value;
+
+        fetch('/auth/login', {
+          method: "POST",
+          body: JSON.stringify({ email, password }),
+          headers: { "Content-Type": "application/json" }
+        })
+          .then(result => {
+            return result.json()
+          })
+          .then(data => {
+            if (data.errors) {
+              emailError.textContent = data.errors.email;
+              passwordError.textContent = data.errors.password;
+            }
+            if (data.user) {
+              location.assign("/");
+            }
+          })
+          .catch(err => {
+            emailError.textContent = err.email;
+            passwordError.textContent = err.password;
+            console.log(err)
+          })
+      })
+    </script>
